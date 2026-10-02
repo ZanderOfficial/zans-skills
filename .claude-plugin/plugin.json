@@ -1,0 +1,9 @@
+{
+  "name": "zans-skills",
+  "version": "2.2.0",
+  "description": "Zan's skills (/bughunt, /issuecoder, /prreviewer, /prreviewall, /designflow, /planissues, /zanpass for scheduled Routines, and /suprpas for supervised Super-Passes), each packaged with the vetted community and design skills it stacks.",
+  "author": {
+    "name": "Zander (vendored skills keep their original authors and licenses)"
+  },
+  "skills": ["./bughunt/", "./issuecoder/", "./prreviewer/", "./prreviewall/", "./designflow/", "./planissues/", "./zanpass/", "./suprpas/", "./shared/"]
+}
