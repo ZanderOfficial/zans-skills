@@ -1,0 +1,16 @@
+{
+  "name": "zan",
+  "owner": {
+    "name": "Zander"
+  },
+  "metadata": {
+    "description": "Claude Code plugins maintained by Zander."
+  },
+  "plugins": [
+    {
+      "name": "zans-skills",
+      "source": "./",
+      "description": "/bughunt, /issuecoder, /prreviewer, /prreviewall, /designflow, /planissues, /zanpass and /suprpas, each with the community and design skills it stacks."
+    }
+  ]
+}
