@@ -15,7 +15,7 @@ root.
 ```
 ./
 ├── .claude-plugin/plugin.json   plugin manifest; lists each group below as a skills directory
-├── install.sh                   copies the skills to ~/.claude/skills or a repo's .claude/skills
+├── install.sh                   copies the skills to ~/.claude/skills or a repo's .claude/skills (--qwen: .qwen/)
 ├── bughunt/
 │   ├── bughunt/                 /bughunt: prove bugs with failing tests, fix small ones, file the rest
 │   └── diagnosing-bugs/         (Matt Pocock) build a reproduction loop before fixing
@@ -93,6 +93,22 @@ plugins, so for cloud use, install into the repository and commit the result.
 | Everything, in one repo, for everyone including cloud sessions | `./install.sh /path/to/repo`, then commit `.claude/skills/` and `.claude/agents/` |
 | Only some of the six, with what they stack | `./install.sh --only designflow,issuecoder [/path/to/repo]`. `shared/` always comes along, and `prreviewall` pulls in `prreviewer`. |
 | As a plugin, on your machine | `/plugin marketplace add ZanderOfficial/zans-skills`, then `/plugin install zans-skills@zan` |
+| Qwen Code, on your machine or in one repo | `./install.sh --qwen [--only a,b] [/path/to/repo]`. Same skills, installed to `~/.qwen/` or the repo's `.qwen/` (commit `.qwen/skills/` and `.qwen/agents/` to share it). |
+
+### Qwen Code
+
+Qwen Code reads the same `SKILL.md` format as Claude Code, but only from
+`.qwen/skills/` and `~/.qwen/skills/`; it does not look in `.claude/`, and the
+plugin route above is Claude Code only. `install.sh --qwen` installs into the
+`.qwen` folder instead. The skill files are copied unchanged. The agents lose
+their `tools:` line, because it names Claude Code's tools (`Read`, `Bash`, …)
+rather than Qwen's (`read_file`, `run_shell_command`, …), so each agent
+inherits the session's tools instead.
+
+The skills were written for Claude Code. Under Qwen, the parts that lean on
+Claude-only features, such as `/goal`, Claude Design canvases and named
+subagent types, work only as far as Qwen has an equivalent. Treat Qwen runs
+of `/suprpas`, `/zanpass` and `/designflow` in particular as best-effort.
 
 Re-run the installer after changing anything here.
 
