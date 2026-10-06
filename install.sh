@@ -9,6 +9,9 @@
 #   ./install.sh --only bughunt,planissues [/path/to/repo]
 #                                         just those skills, plus the stacked skills
 #                                         they need (always including shared/)
+#   ./install.sh --qwen [--only a,b] [/path/to/repo]
+#                                         the same, but for Qwen Code: into ~/.qwen or
+#                                         /path/to/repo/.qwen instead of .claude
 #
 # The source is grouped by skill (bughunt/, issuecoder/, ... , shared/); the
 # install is flat, because Claude Code finds skills at <dir>/<name>/SKILL.md.
@@ -19,11 +22,20 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 all_groups="bughunt issuecoder prreviewer prreviewall designflow planissues zanpass suprpas"
 groups="$all_groups"
 
-if [[ "${1:-}" == "--only" ]]; then
-  [[ $# -ge 2 ]] || { echo "usage: $0 [--only a,b] [repo-path]" >&2; exit 2; }
-  groups="${2//,/ }"
-  shift 2
-fi
+config_dir=".claude"
+while [[ "${1:-}" == --* ]]; do
+  case "$1" in
+    --only)
+      [[ $# -ge 2 ]] || { echo "usage: $0 [--qwen] [--only a,b] [repo-path]" >&2; exit 2; }
+      groups="${2//,/ }"
+      shift 2 ;;
+    --qwen)
+      config_dir=".qwen"
+      shift ;;
+    *)
+      echo "unknown option: $1 (usage: $0 [--qwen] [--only a,b] [repo-path])" >&2; exit 2 ;;
+  esac
+done
 for g in $groups; do
   [[ " $all_groups " == *" $g "* ]] || { echo "unknown skill group: $g (choose from: $all_groups)" >&2; exit 2; }
 done
@@ -40,9 +52,9 @@ done
 groups="$groups shared"
 
 if [[ $# -ge 1 ]]; then
-  base="$1/.claude"
+  base="$1/$config_dir"
 else
-  base="${HOME}/.claude"
+  base="${HOME}/$config_dir"
 fi
 mkdir -p "$base/skills" "$base/agents"
 
@@ -61,6 +73,13 @@ for agent in "$here"/agents/*.md; do
     thermo-nuclear-*) [[ " $groups " == *" prreviewer "* ]] || continue ;;
     impeccable-*)     [[ " $groups " == *" designflow "* ]] || continue ;;
   esac
-  cp "$agent" "$base/agents/"
+  if [[ "$config_dir" == ".qwen" ]]; then
+    # The tools: allowlist uses Claude Code tool names (Read, Bash, ...), which
+    # Qwen Code does not recognise; without it the agent inherits the session's tools.
+    awk 'NR == 1 || !done { if (/^---$/ && NR > 1) done = 1; if (!done && /^tools:/) next } { print }' \
+      "$agent" > "$base/agents/$(basename "$agent")"
+  else
+    cp "$agent" "$base/agents/"
+  fi
   echo "installed agent $(basename "$agent" .md)"
 done
