@@ -15,6 +15,7 @@ root.
 ```
 ./
 ├── .claude-plugin/plugin.json   plugin manifest; lists each group below as a skills directory
+├── get.sh                       one-line installer: fetches this repo and runs install.sh on the current repo
 ├── install.sh                   copies the skills to ~/.claude/skills or a repo's .claude/skills (--qwen: .qwen/)
 ├── bughunt/
 │   ├── bughunt/                 /bughunt: prove bugs with failing tests, fix small ones, file the rest
@@ -81,6 +82,36 @@ it, next to the skills it stacks. The installer flattens all of this into
 `<dir>/.claude/skills/<name>/`.
 
 ## Installing
+
+### Quick install: one command, no plugin, no clone
+
+Open a Claude Code session (local or cloud) on the repository you want the
+skills in, and type this at the prompt. The leading `!` makes Claude Code run
+it as a shell command in that repository:
+
+```
+! curl -fsSL https://raw.githubusercontent.com/ZanderOfficial/zans-skills/main/get.sh | bash
+```
+
+`get.sh` downloads this repository to a temporary folder, runs `install.sh`
+against the root of the repository you are in, and deletes the download. The
+skills land in `.claude/skills/` and the agents in `.claude/agents/`; commit
+both so the skills load in cloud sessions and for everyone else on the repo.
+If the new `/commands` don't appear right away, start a new session. Run the
+same command again to update.
+
+Options go after `bash -s --`:
+
+```
+! curl -fsSL https://raw.githubusercontent.com/ZanderOfficial/zans-skills/main/get.sh | bash -s -- --only bughunt,planissues
+! curl -fsSL https://raw.githubusercontent.com/ZanderOfficial/zans-skills/main/get.sh | bash -s -- --global   # ~/.claude, every repo on this machine
+! curl -fsSL https://raw.githubusercontent.com/ZanderOfficial/zans-skills/main/get.sh | bash -s -- --qwen     # .qwen instead of .claude
+```
+
+Set `ZANS_SKILLS_REF=<branch or tag>` before `bash` to install something
+other than `main`.
+
+### From a clone
 
 Claude Code only gives plugin skills namespaced names, like
 `/zans-skills:bughunt`. `install.sh` gives them bare names (`/bughunt`).
