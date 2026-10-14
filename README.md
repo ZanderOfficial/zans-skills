@@ -338,3 +338,16 @@ because both `/issuecoder` and `/designflow` stack them.
   for static art and themed documents, not product UI.
 - **ibelick `ui-skills-root`:** it depends on the `ui-skills` CLI.
 - **`userinterface-wiki`:** overlaps with `web-design-guidelines`.
+
+## License
+
+Zan's own work in this repository (the workflow skills, the named subagents,
+`install.sh`, and the documentation) is licensed under the
+[Mozilla Public License 2.0](LICENSE). MPL-2.0 is a file-level copyleft
+license: you may use these skills in any project, open or closed, but if you
+distribute a modified version of one of these files, that file must stay
+under MPL-2.0.
+
+The vendored skills are **not** covered by that license. Each keeps its
+upstream license, which sits in its own folder and is also collected in
+`licenses/` (see the tables above).
