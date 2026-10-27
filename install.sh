@@ -19,7 +19,7 @@
 set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-all_groups="bughunt issuecoder prreviewer prreviewall designflow planissues zanpass suprpas"
+all_groups="bughunt issuecoder prreviewer prreviewall designflow planissues zanpass"
 groups="$all_groups"
 
 config_dir=".claude"
@@ -41,12 +41,8 @@ for g in $groups; do
 done
 # /prreviewall reads prreviewer's SKILL.md at run time, so it needs that group.
 [[ " $groups " == *" prreviewall "* && " $groups " != *" prreviewer "* ]] && groups="$groups prreviewer"
-# /zanpass reads the SKILL.md of every skill it routes to.
-[[ " $groups " == *" zanpass "* ]] && for g in bughunt issuecoder prreviewer prreviewall planissues; do
-  [[ " $groups " == *" $g "* ]] || groups="$groups $g"
-done
-# /suprpas reads the SKILL.md of every skill it routes to, /designflow included.
-[[ " $groups " == *" suprpas "* ]] && for g in bughunt issuecoder prreviewer planissues designflow; do
+# /zanpass reads the SKILL.md of every skill it routes to, /designflow included.
+[[ " $groups " == *" zanpass "* ]] && for g in bughunt issuecoder prreviewer prreviewall planissues designflow; do
   [[ " $groups " == *" $g "* ]] || groups="$groups $g"
 done
 groups="$groups shared"

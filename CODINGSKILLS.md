@@ -48,11 +48,13 @@ routes each pass to these skills through subagents, choosing a model per job.
 That prompt is a `/goal` line that runs the `/zanpass` skill: see
 [`ROUTINES.md`](ROUTINES.md).
 
-For work too large for any one skill run (a whole feature, the foundations of
-a new app or game) there is **`/suprpas`, the Super-Pass**: you plan with the
-main session from a braindump, and it then builds, reviews and merges the
-result in waves of worker subagents, stopping for you at every gate. See
-[`/suprpas`](#suprpas-braindump--planmd--milestonename--resume-plan) below.
+When you are in the chat, **`/zanpass` is the one command to start with**
+(it replaces `/suprpas` and the earlier `/fledgepass`). It asks what you
+want (Plan, Bughunt, Coder, Reviewer or Designing), triages it, and has the
+matching skill's worker do it while a **council** of five expert judges
+forces at least ten rounds of criticism and revision, before a bug-hunter
+pass, a reviewer pass and the merge into your working branch. See
+[`/zanpass`](#zanpass-plan--bughunt--coder--reviewer--designing-target) below.
 
 When one starts, it reads the repository's own `CLAUDE.md` / `AGENTS.md` and
 detects its package manager, test scripts and default branch. You start each
@@ -285,44 +287,73 @@ Plans go in the docs repository (or `docs/plans/`); issues go in the product's c
 
 **Stacks:** `grilling`, `research` and `to-tickets` (Matt Pocock).
 
-### `/suprpas [braindump | plan.md | milestone:<name> | resume <plan>]`
+### `/zanpass [plan | bughunt | coder | reviewer | designing] [target]`
 
-**Why it exists.** `/zanpass` is deliberately small: it runs unattended,
-so it may only take a few issues per pass and can never merge on its own. That
-is the wrong shape for building a whole feature, or the foundations of a game,
-with the product owner in the room. The Super-Pass is the supervised version:
-because a person is present at every gate, it can take on dozens of issues in
-one session, while the main session stays small by handing all the building
-and reviewing to subagents.
+**Why it exists.** Each skill above does one job well, but you had to know
+which to start, and each judged its own work once, with one reviewer. One
+reviewer, run once, catches what is obviously wrong and misses what is merely
+weak: a name that will confuse the next reader, a screen that works but feels
+unfinished, a plan that is buildable but not the simplest. `/zanpass` puts
+every kind of work through the same path, and puts a council of specialists
+on it for ten rounds, so "passes review" becomes "nothing material left to
+improve". It replaces two older coordinators, the supervised Super-Pass
+(`/suprpas`) and the earlier `/fledgepass`, and everything is in one file.
 
 **What it does:**
 
-1. **Plans with you.** The main session runs `/planissues` itself, in its
-   interactive mode: braindump, realism discussion, research, plan, as many
-   iteration rounds as you want, the readiness gate, and the issue breakdown.
-   It adds a **wave map** to the breakdown (which issues can be built in
-   parallel, given their blocking edges) and names the **foundations** each
-   phase stands on.
-2. **Hands you a `/goal` line.** Planning is not a goal; building is. Once the
-   issues are published, it prints the goal and `/suprpas resume <plan>` for
-   you to paste.
-3. **Builds in waves.** Wave 0 is the foundations, one at a time on opus, each
-   merged before the next. Later waves run up to three workers at once: an
-   `/issuecoder` worker for code, a `/designflow` worker for UI (you choose
-   the design direction), one issue each.
-4. **Reviews every PR with fresh eyes.** A separate opus reviewer that saw
-   none of the build runs `thermos` (correctness and security, plus code
-   quality) and `two-axis-review` against the issue; a `/prreviewer` worker
-   then fixes what it found, at most two rounds.
-5. **Merges on your answer only,** once per wave, with the `/prreviewer`
-   merge gate: the head SHA you approved, CI green, no conflicts.
-6. **Integrates.** A `/bughunt` sweep of everything merged, a whole-feature
-   review against the plan's exit criteria, and a visual consistency pass
-   across the screens built in different waves.
+1. **Asks what you want.** Plan, Bughunt, Coder, Reviewer or Designing; then the target, chosen from candidates a cheap
+   subagent found; then *short* (it runs to the end) or *long* (you see every
+   wave of 10 iterations); then how it lands (merge into your working branch
+   and push, open the PR and stop, or ask at the end).
+2. **Triages.** A haiku subagent reads the target, its blockers and claims,
+   CI, and what it touches. You get a **triage card**: the worker and its
+   model, the five judges, the branch, the guardrails the work would touch,
+   and the cost of a wave. Nothing is written to GitHub until you say go.
+3. **Seats the council.** A worker runs the option's skill (`/planissues`,
+   `/issuecoder`, `/designflow`, `/bughunt` or `/prreviewer`). Five opus
+   judges, who did none of the work, judge each version at once, read-only;
+   the main session chairs, merges their findings into one list, settles
+   disagreements, and sends the list back to the worker. **The council cannot
+   release the work before the tenth iteration of a wave**, and releases it
+   only with no blocks and at least four of five votes to pass. Early passes
+   turn the remaining iterations into refinement, where "leave it" is a valid
+   answer and churn is rejected. Long work stops for you after every wave.
+4. **Runs the passes.** A fresh `/bughunt` pass on what the council
+   released, then a fresh `/prreviewer` pass. Any change they push goes back
+   to the council for one sitting.
+5. **Lands it,** as you chose, and pings you with next steps. It merges into
+   your working branch only if you chose that, and **never into the default
+   branch without your explicit yes** for that PR at that commit, through the
+   `/prreviewer` merge gate.
 
-It keeps a **ledger** in the plan so it can resume after a context
-checkpoint, and uses the same haiku / sonnet / opus model ladder as
-`/zanpass`. **Stacks:** everything its five routed skills stack.
+The councils, per option:
+
+| Option | The five seats |
+|---|---|
+| Plan | product strategist, systems architect, data and security, delivery planner, house rules |
+| Coder | correctness and security, code quality, spec fidelity, test engineer, house rules |
+| Designing | design director, interaction and copy, accessibility, motion and performance, house rules |
+| Bughunt | reproduction skeptic, root-cause analyst, fix minimalism, security, house rules |
+| Reviewer | correctness and security, code quality, spec fidelity, merge readiness, house rules |
+
+The **house rules** seat is the user's `AGENTS.md` rules (readable code,
+writing that educates, the ask-before-proceeding guardrails), which every
+worker and judge also gets verbatim. When the work touches Supabase, a native
+app, a game loop or payments, one seat is swapped for that specialist.
+
+**Also in the same skill:** a Plan can end with "Build it now", which builds the
+published plan in dependency-ordered waves (foundations first, one at a time
+on opus), each issue through its own council, with one merge question per
+wave, then a bug sweep, a whole-feature review and a visual pass over the
+merged result. And a Routine that passes a `REPO CONTEXT` block gets the
+unattended scheduled pass ([`ROUTINES.md`](ROUTINES.md)),
+where the council is off unless the block says `council: on`.
+
+**Cost.** A wave is about ten worker turns and fifty opus judge turns. The
+triage card says so before you start.
+
+**Stacks:** everything its routed skills stack; each council seat loads the
+ones listed in `zanpass/zanpass/SKILL.md`.
 
 ---
 
@@ -545,7 +576,7 @@ design target. A goal turns that into a series of runs aimed at an outcome:
 | `/prreviewer` | "every open PR is `Ready to merge: yes` or has a stated blocker" | about 1 per PR, plus 2 |
 | `/prreviewall` | the same as `/prreviewer` | 6 |
 | `/designflow` | "the settings page has no blocking critic findings, with mobile and desktop screenshots in the PR" | 6 per target |
-| `/suprpas` | set at the end of planning, from the line it hands you: "every issue in the plan's Issue map is merged, ready and waiting for your merge answer, or blocked in writing, and integration has reported" | about 2 per wave, plus 1 per 3 issues, plus 3 |
+| `/zanpass` | after the triage card: "the council released the target, both passes are clean, and it has landed as chosen". For a whole-plan build: "every issue in the plan's Issue map is merged, released and waiting for your merge answer, or blocked in writing, and integration has reported" | about 4 per council wave, plus 3; for a whole-plan build, about 3 per wave plus 1 per issue, plus 3 |
 | `/planissues` | only the mechanical ends, after you approve the breakdown: "every item in the plan's Issue map has an issue number". Discussion and iteration are not goals. | about 1 per 15 issues, plus 2 |
 
 **The boundaries** each skill enforces under a goal (the details are in each
