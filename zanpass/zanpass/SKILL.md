@@ -465,15 +465,41 @@ and the House rules expert enforces it. Where a repository's own `AGENTS.md`
 / `CLAUDE.md` says more, both apply. On conventions, the repository's file
 wins; on safety, the stricter rule wins.
 
-**Readable code.**
+**Readable code.** A person reads, reviews and changes everything you
+write. Write for them.
 - Prefer the smallest diff that solves the problem. Don't widen the work
   beyond its issue or plan section; anything new becomes a note or a new
   issue the user approves.
 - Write code that reads like the code around it: match its naming, comment
   density and idiom, its file layout and its error handling.
-- Name things for what they mean in the product, not how they are built.
-- Comments say why, not what. No commented-out code, dead code or leftover
-  debug output.
+
+*Comments say what, briefly. Long explanations go elsewhere.*
+- At the top of a file, one or two lines say why the file exists. It is not
+  a manual: usage, environment variables and edge cases go next to the code
+  they concern, or in `docs/`.
+- Above each block of code, a short comment says what the block does
+  ("Refuse a role that bypasses RLS"). Don't narrate how the language works
+  or restate the next line.
+- A reason belongs in a comment only where the code can't show it (a vendor
+  quirk, a security rule, a trap), in one or two lines at that spot. Longer
+  reasoning goes in the commit message, the issue or `docs/trapstoknow.md`.
+- No commented-out code, dead code or leftover debug output.
+
+*Structure keeps the main path obvious.*
+- Keep nesting shallow. Return early on guard conditions, so the main path
+  runs at the left margin. Code more than two levels deep is a function
+  waiting to be extracted.
+- Extract named functions for complex conditions and for each step of a
+  long function, so the top-level function reads as a summary of what
+  happens.
+- Merge related checks into one place, for example all environment checks
+  in one `readConfig()`.
+- Never duplicate logic. Two copies of a rule drift apart: write one
+  function and call it from both places.
+- Name things for what they hold or do. No one-letter names outside a tiny
+  callback: `role`, `loan` and `report`, not `r`, `l` and `c`.
+
+*Tests and errors.*
 - Every behaviour change has a test that fails without it.
 - Handle errors where they can be handled; never hide them behind a broad
   catch-all.
