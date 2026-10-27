@@ -1,7 +1,7 @@
 {
   "name": "zans-skills",
-  "version": "2.2.0",
-  "description": "Zan's skills (/bughunt, /issuecoder, /prreviewer, /prreviewall, /designflow, /planissues, /zanpass for scheduled Routines, and /suprpas for supervised Super-Passes), each packaged with the vetted community and design skills it stacks.",
+  "version": "2.3.0",
+  "description": "Zan's skills (/bughunt, /issuecoder, /prreviewer, /prreviewall, /designflow, /planissues, /zanpass, the council: one command that asks what you want, has five expert judges force ten rounds of revision, and also runs scheduled Routines and whole-plan builds; /suprpas is kept as its alias), each packaged with the vetted community and design skills it stacks.",
   "author": {
     "name": "Zander (vendored skills keep their original authors and licenses)"
   },

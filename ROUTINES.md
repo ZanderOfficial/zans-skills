@@ -24,6 +24,12 @@ procedure. They only need to:
 The procedure is the `/zanpass` skill. **One Routine per repository**, each
 with a short `/goal` prompt and that repository's `REPO CONTEXT` block.
 
+`/zanpass` is also the interactive council you type in a chat (it asks what
+you want, then has five expert judges force ten rounds of revision; see
+`CODINGSKILLS.md`). A Routine never sees that side: when `/zanpass` finds a
+`REPO CONTEXT` block it follows `zanpass/zanpass/routine.md`, the unattended
+pass described here, and asks nothing.
+
 ## How it works, in short
 
 ```
@@ -125,8 +131,9 @@ each of those environments (see the context guard below).
 
 ## The prompt
 
-The pass orders live in the **`zanpass` skill**,
-[`zanpass/zanpass/SKILL.md`](zanpass/zanpass/SKILL.md),
+The pass orders live in the **`zanpass` skill**:
+[`zanpass/zanpass/SKILL.md`](zanpass/zanpass/SKILL.md) sends a run with a
+REPO CONTEXT block to [`routine.md`](zanpass/zanpass/routine.md) beside it,
 installed into each product repository with the other skills. A Routine's
 prompt is only a `/goal` line plus that repository's `REPO CONTEXT` block.
 
@@ -198,8 +205,17 @@ extra_never: SQL or migrations against any non-local database; payment providers
 skills_enabled: prreviewall, issuecoder, bughunt, planissues
 issue_cap: 6
 bughunt: daily
+council: off
 voice: AGENTS.md
 ```
+
+`council: on` puts each build and bug fix in the pass before a council of
+five judges for one wave of `council_iterations` (default 10) iterations,
+chaired by that issue's worker (`routine.md`, section 3a). It caps
+`issue_cap` at 2, because each council-judged issue costs about sixty agent
+turns. Leave it `off` for frequent Routines; turn it on for a nightly pass
+on a repository where quality matters more than throughput. A released
+council is not an approval: the merge gate below doesn't change.
 
 Add a repository's own hazards to `hunt_focus` and `extra_never`. For a product
 that touches money, tax or legal text, for example: sandbox-mode switches that

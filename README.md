@@ -56,11 +56,13 @@ root.
 │   ├── research/                (Matt Pocock) primary-source research in a background agent
 │   └── to-tickets/              (Matt Pocock) vertical slices with blocking edges
 ├── zanpass/
-│   └── zanpass/              /zanpass: one scheduled Routine pass; routes work to the
-│                                skills above through subagents (see ROUTINES.md)
+│   └── zanpass/                 /zanpass, the council: asks what you want, triages it, has a worker
+│                                do it while five expert judges force 10+ rounds of revision, runs a
+│                                bug-hunter and a reviewer pass, then lands it. Beside its SKILL.md:
+│                                council.md (rosters, iterations), routine.md (the scheduled pass,
+│                                see ROUTINES.md) and waves.md (building a whole plan in waves)
 ├── suprpas/
-│   └── suprpas/                 /suprpas: a supervised Super-Pass; plans a large piece of work
-│                                with you, then builds, reviews and merges it in waves of subagents
+│   └── suprpas/                 /suprpas: kept as an alias; runs /zanpass plan or /zanpass build
 ├── shared/                      stacked by more than one of the six
 │   ├── thermo-nuclear-review/   (Cursor) bughunt, issuecoder, prreviewer
 │   ├── systematic-debugging/    (superpowers) bughunt, issuecoder, prreviewer
@@ -68,7 +70,8 @@ root.
 │   ├── verification-before-completion/  (superpowers) all but planissues
 │   ├── two-axis-review/         (Matt Pocock) issuecoder, prreviewer, designflow
 │   └── supabase/ supabase-postgres-best-practices/   (Supabase) issuecoder, designflow
-├── agents/                      named subagents: thermo-nuclear-* (prreviewer), impeccable-* (designflow)
+├── agents/                      named subagents: thermo-nuclear-* (prreviewer), impeccable-* (designflow),
+│                                council-judge (zanpass)
 └── licenses/                    every upstream LICENSE / NOTICE, collected in one place
 ```
 
@@ -154,30 +157,38 @@ Re-run the installer after changing anything here.
 | `/designflow [brief \| #n… \| label:x]` | (new; the design counterpart to `/issuecoder`) | Designs and builds one piece of UI: what you describe, or else the top open `design`-labelled issue. A direction subagent proposes 2–3 directions using Impeccable, frontend-design and UI/UX Pro Max. You approve one, shown on a Claude Design canvas where available. A builder in its own worktree then builds it with shadcn, the Vercel React rules, the Supabase skills and Emil Kowalski's motion skills (or the Expo skills for native), and polishes it with Impeccable. It captures mobile and desktop screenshots with webapp-testing. Three fresh critics (design, accessibility, motion) review it, with at most 2 fix rounds, then it opens a PR with before/after screenshots. |
 | `/planissues [braindump \| plan.md \| issues plan.md]` | (new; the planning step before `/issuecoder`) | Takes a braindump through discussion (with a realism check first), research, organisation and a written plan in the knowledge base, then as many iteration rounds as you want, then issues. It uses `grilling` for question rounds, up to three parallel researchers (code, record, outside world, the last using `research`), and a fresh skeptic that saw none of the discussion. It proposes splitting an idea into several plans when it holds several. Nothing reaches GitHub until you pass a readiness gate (a verifier re-checks every claim in the plan) **and** approve the issue breakdown. It then publishes a milestone, an epic and issues in the house format, writing each issue number back into the plan as it goes. |
 
-**`/zanpass`** is the seventh skill, and is not meant to be typed. It is
-what the scheduled Routines run (under `/goal`): one pass that triages a
-repository and routes work to the six skills above through worker subagents,
-choosing a model per job and keeping its own thread under 50% of its context.
-[`ROUTINES.md`](ROUTINES.md) explains it and holds each repository's
-Routine prompt. `install.sh --only zanpass` also installs the five skills
-it routes to.
+**`/zanpass`** is the seventh skill, **the council**, and the one command
+for all of the above. Type `/zanpass` and it asks what you want: **plan** an
+idea, **code** an issue, **design** a screen, hunt **bugs**, or **review** a
+PR; then the target, whether the work is *short* (it runs to the end on its
+own) or *long* (you see it every 10 iterations), and how it should land. A
+cheap read-only subagent triages the repository for that job and you approve
+a triage card that states the worker, the five judges, the branch, the
+guardrails it touches and the cost. A worker subagent then does the job with
+the matching skill above, while a **council of five expert judges** (all on
+opus, a different five per option, always including a seat that enforces the
+house rules from `AGENTS.md`) judges every version, for **at least 10
+iterations**; the council can't release the work before then. A bug-hunter
+pass and a reviewer pass follow, and then the work is merged into the branch
+you're working in, or left as a PR for you, as you chose. It **never merges
+into the default branch without your explicit yes** for that PR at that
+commit. `council.md`, beside its `SKILL.md`, has the rosters and the
+iteration rules.
 
-**`/suprpas`** is the eighth skill: a **Super-Pass**, the supervised, large
-counterpart of `/zanpass`. It is for work too big for one run of any single
-skill, such as a whole feature, a large section of a product, or the
-foundations of a new app or game. The main session plans the work with you
-from a braindump by running `/planissues` in its interactive mode. Once you
-have approved the plan and its breakdown, it hands you a `/goal` line and then
-coordinates worker subagents in dependency-ordered **waves**: foundations
-first, one at a time on the heaviest model, then up to three issues at once.
-Each issue is built by an `/issuecoder` or `/designflow` worker, reviewed by
-a fresh opus reviewer (both thermo-nuclear reviews and `two-axis-review`), and
-brought to mergeable by a `/prreviewer` worker. It merges a wave only after
-you answer the merge question for it in the chat, and it ends with a bug sweep
-and a whole-feature review of the merged result. It uses the same model ladder
-as `/zanpass`, keeps its state in a ledger inside the plan so it can resume
-after a context checkpoint (`/suprpas resume <plan>`), and never runs
-unattended. `install.sh --only suprpas` also installs the five skills it
+Two more modes live in the same skill. Started by a scheduled Routine with a
+`REPO CONTEXT` block, it runs the unattended pass in `routine.md` (triage,
+then `/prreviewall`, `/issuecoder`, `/bughunt` and `/planissues` through
+worker subagents, merging only PRs a human approved on GitHub, and keeping its
+own thread under 50% of its context): see [`ROUTINES.md`](ROUTINES.md). And
+`/zanpass build <plan>` builds a published plan in dependency-ordered waves,
+each issue through its own council, with a merge question per wave
+(`waves.md`). `install.sh --only zanpass` also installs the six skills it
+routes to.
+
+**`/suprpas`** is the eighth, kept so the old command still works. The
+Super-Pass it used to be (plan with you, then build in waves) is now
+`/zanpass plan` followed by `/zanpass build`, and `/suprpas` simply runs
+those. `install.sh --only suprpas` installs `/zanpass` and everything it
 routes to.
 
 All six have `disable-model-invocation: true`, so they run only when you type

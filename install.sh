@@ -41,12 +41,10 @@ for g in $groups; do
 done
 # /prreviewall reads prreviewer's SKILL.md at run time, so it needs that group.
 [[ " $groups " == *" prreviewall "* && " $groups " != *" prreviewer "* ]] && groups="$groups prreviewer"
-# /zanpass reads the SKILL.md of every skill it routes to.
-[[ " $groups " == *" zanpass "* ]] && for g in bughunt issuecoder prreviewer prreviewall planissues; do
-  [[ " $groups " == *" $g "* ]] || groups="$groups $g"
-done
-# /suprpas reads the SKILL.md of every skill it routes to, /designflow included.
-[[ " $groups " == *" suprpas "* ]] && for g in bughunt issuecoder prreviewer planissues designflow; do
+# /suprpas is now an alias that runs /zanpass.
+[[ " $groups " == *" suprpas "* && " $groups " != *" zanpass "* ]] && groups="$groups zanpass"
+# /zanpass reads the SKILL.md of every skill it routes to, /designflow included.
+[[ " $groups " == *" zanpass "* ]] && for g in bughunt issuecoder prreviewer prreviewall planissues designflow; do
   [[ " $groups " == *" $g "* ]] || groups="$groups $g"
 done
 groups="$groups shared"
@@ -67,11 +65,13 @@ for g in $groups; do
   done
 done
 
-# Named subagents used by the thermos reviews (prreviewer) and by Impeccable (designflow).
+# Named subagents used by the thermos reviews (prreviewer), by Impeccable (designflow)
+# and by the /zanpass council.
 for agent in "$here"/agents/*.md; do
   case "$(basename "$agent")" in
     thermo-nuclear-*) [[ " $groups " == *" prreviewer "* ]] || continue ;;
     impeccable-*)     [[ " $groups " == *" designflow "* ]] || continue ;;
+    council-*)        [[ " $groups " == *" zanpass "* ]] || continue ;;
   esac
   if [[ "$config_dir" == ".qwen" ]]; then
     # The tools: allowlist uses Claude Code tool names (Read, Bash, ...), which
