@@ -19,7 +19,7 @@
 set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-all_groups="bughunt issuecoder prreviewer prreviewall designflow planissues zanpass suprpas"
+all_groups="bughunt issuecoder prreviewer prreviewall designflow planissues zanpass"
 groups="$all_groups"
 
 config_dir=".claude"
@@ -41,8 +41,6 @@ for g in $groups; do
 done
 # /prreviewall reads prreviewer's SKILL.md at run time, so it needs that group.
 [[ " $groups " == *" prreviewall "* && " $groups " != *" prreviewer "* ]] && groups="$groups prreviewer"
-# /suprpas is now an alias that runs /zanpass.
-[[ " $groups " == *" suprpas "* && " $groups " != *" zanpass "* ]] && groups="$groups zanpass"
 # /zanpass reads the SKILL.md of every skill it routes to, /designflow included.
 [[ " $groups " == *" zanpass "* ]] && for g in bughunt issuecoder prreviewer prreviewall planissues designflow; do
   [[ " $groups " == *" $g "* ]] || groups="$groups $g"
@@ -65,13 +63,11 @@ for g in $groups; do
   done
 done
 
-# Named subagents used by the thermos reviews (prreviewer), by Impeccable (designflow)
-# and by the /zanpass council.
+# Named subagents used by the thermos reviews (prreviewer) and by Impeccable (designflow).
 for agent in "$here"/agents/*.md; do
   case "$(basename "$agent")" in
     thermo-nuclear-*) [[ " $groups " == *" prreviewer "* ]] || continue ;;
     impeccable-*)     [[ " $groups " == *" designflow "* ]] || continue ;;
-    council-*)        [[ " $groups " == *" zanpass "* ]] || continue ;;
   esac
   if [[ "$config_dir" == ".qwen" ]]; then
     # The tools: allowlist uses Claude Code tool names (Read, Bash, ...), which

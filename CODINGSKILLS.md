@@ -49,12 +49,12 @@ That prompt is a `/goal` line that runs the `/zanpass` skill: see
 [`ROUTINES.md`](ROUTINES.md).
 
 When you are in the chat, **`/zanpass` is the one command to start with**
-(formerly `/fledgepass`, and now also what `/suprpas` was). It asks what you
-want (plan, code, design, bughunt or review), triages it, and has the
+(it replaces `/suprpas` and the earlier `/fledgepass`). It asks what you
+want (Plan, Bughunt, Coder, Reviewer or Designing), triages it, and has the
 matching skill's worker do it while a **council** of five expert judges
 forces at least ten rounds of criticism and revision, before a bug-hunter
 pass, a reviewer pass and the merge into your working branch. See
-[`/zanpass`](#zanpass-plan--code--design--bughunt--review-target) below.
+[`/zanpass`](#zanpass-plan--bughunt--coder--reviewer--designing-target) below.
 
 When one starts, it reads the repository's own `CLAUDE.md` / `AGENTS.md` and
 detects its package manager, test scripts and default branch. You start each
@@ -287,7 +287,7 @@ Plans go in the docs repository (or `docs/plans/`); issues go in the product's c
 
 **Stacks:** `grilling`, `research` and `to-tickets` (Matt Pocock).
 
-### `/zanpass [plan | code | design | bughunt | review] [target]`
+### `/zanpass [plan | bughunt | coder | reviewer | designing] [target]`
 
 **Why it exists.** Each skill above does one job well, but you had to know
 which to start, and each judged its own work once, with one reviewer. One
@@ -296,13 +296,12 @@ weak: a name that will confuse the next reader, a screen that works but feels
 unfinished, a plan that is buildable but not the simplest. `/zanpass` puts
 every kind of work through the same path, and puts a council of specialists
 on it for ten rounds, so "passes review" becomes "nothing material left to
-improve". It replaces two older coordinators: the supervised Super-Pass
-(`/suprpas`, which still works as an alias) and the earlier `/fledgepass`.
+improve". It replaces two older coordinators, the supervised Super-Pass
+(`/suprpas`) and the earlier `/fledgepass`, and everything is in one file.
 
 **What it does:**
 
-1. **Asks what you want.** Plan, Code, Design, or Check existing work
-   (Bughunt or Review a PR); then the target, chosen from candidates a cheap
+1. **Asks what you want.** Plan, Bughunt, Coder, Reviewer or Designing; then the target, chosen from candidates a cheap
    subagent found; then *short* (it runs to the end) or *long* (you see every
    wave of 10 iterations); then how it lands (merge into your working branch
    and push, open the PR and stop, or ask at the end).
@@ -332,29 +331,29 @@ The councils, per option:
 | Option | The five seats |
 |---|---|
 | Plan | product strategist, systems architect, data and security, delivery planner, house rules |
-| Code | correctness and security, code quality, spec fidelity, test engineer, house rules |
-| Design | design director, interaction and copy, accessibility, motion and performance, house rules |
+| Coder | correctness and security, code quality, spec fidelity, test engineer, house rules |
+| Designing | design director, interaction and copy, accessibility, motion and performance, house rules |
 | Bughunt | reproduction skeptic, root-cause analyst, fix minimalism, security, house rules |
-| Review | correctness and security, code quality, spec fidelity, merge readiness, house rules |
+| Reviewer | correctness and security, code quality, spec fidelity, merge readiness, house rules |
 
 The **house rules** seat is the user's `AGENTS.md` rules (readable code,
 writing that educates, the ask-before-proceeding guardrails), which every
 worker and judge also gets verbatim. When the work touches Supabase, a native
 app, a game loop or payments, one seat is swapped for that specialist.
 
-**Also in the same skill:** `/zanpass build <plan | milestone:name>` builds a
+**Also in the same skill:** a Plan can end with "Build it now", which builds the
 published plan in dependency-ordered waves (foundations first, one at a time
 on opus), each issue through its own council, with one merge question per
 wave, then a bug sweep, a whole-feature review and a visual pass over the
 merged result. And a Routine that passes a `REPO CONTEXT` block gets the
-unattended scheduled pass in `routine.md` ([`ROUTINES.md`](ROUTINES.md)),
+unattended scheduled pass ([`ROUTINES.md`](ROUTINES.md)),
 where the council is off unless the block says `council: on`.
 
 **Cost.** A wave is about ten worker turns and fifty opus judge turns. The
 triage card says so before you start.
 
 **Stacks:** everything its routed skills stack; each council seat loads the
-ones listed in `zanpass/zanpass/council.md`.
+ones listed in `zanpass/zanpass/SKILL.md`.
 
 ---
 
@@ -577,7 +576,7 @@ design target. A goal turns that into a series of runs aimed at an outcome:
 | `/prreviewer` | "every open PR is `Ready to merge: yes` or has a stated blocker" | about 1 per PR, plus 2 |
 | `/prreviewall` | the same as `/prreviewer` | 6 |
 | `/designflow` | "the settings page has no blocking critic findings, with mobile and desktop screenshots in the PR" | 6 per target |
-| `/zanpass` | after the triage card: "the council released the target, both passes are clean, and it has landed as chosen". For `build`: "every issue in the plan's Issue map is merged, released and waiting for your merge answer, or blocked in writing, and integration has reported" | about 4 per council wave, plus 3; for `build`, about 3 per wave plus 1 per issue, plus 3 |
+| `/zanpass` | after the triage card: "the council released the target, both passes are clean, and it has landed as chosen". For a whole-plan build: "every issue in the plan's Issue map is merged, released and waiting for your merge answer, or blocked in writing, and integration has reported" | about 4 per council wave, plus 3; for a whole-plan build, about 3 per wave plus 1 per issue, plus 3 |
 | `/planissues` | only the mechanical ends, after you approve the breakdown: "every item in the plan's Issue map has an issue number". Discussion and iteration are not goals. | about 1 per 15 issues, plus 2 |
 
 **The boundaries** each skill enforces under a goal (the details are in each

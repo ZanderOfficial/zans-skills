@@ -27,7 +27,7 @@ with a short `/goal` prompt and that repository's `REPO CONTEXT` block.
 `/zanpass` is also the interactive council you type in a chat (it asks what
 you want, then has five expert judges force ten rounds of revision; see
 `CODINGSKILLS.md`). A Routine never sees that side: when `/zanpass` finds a
-`REPO CONTEXT` block it follows `zanpass/zanpass/routine.md`, the unattended
+`REPO CONTEXT` block it runs its "Scheduled runs" section, the unattended
 pass described here, and asks nothing.
 
 ## How it works, in short
@@ -132,8 +132,8 @@ each of those environments (see the context guard below).
 ## The prompt
 
 The pass orders live in the **`zanpass` skill**:
-[`zanpass/zanpass/SKILL.md`](zanpass/zanpass/SKILL.md) sends a run with a
-REPO CONTEXT block to [`routine.md`](zanpass/zanpass/routine.md) beside it,
+[`zanpass/zanpass/SKILL.md`](zanpass/zanpass/SKILL.md), whose "Scheduled runs"
+section is the pass a REPO CONTEXT block starts,
 installed into each product repository with the other skills. A Routine's
 prompt is only a `/goal` line plus that repository's `REPO CONTEXT` block.
 
@@ -211,7 +211,7 @@ voice: AGENTS.md
 
 `council: on` puts each build and bug fix in the pass before a council of
 five judges for one wave of `council_iterations` (default 10) iterations,
-chaired by that issue's worker (`routine.md`, section 3a). It caps
+chaired by that issue's worker (the "Scheduled runs" section of the skill). It caps
 `issue_cap` at 2, because each council-judged issue costs about sixty agent
 turns. Leave it `off` for frequent Routines; turn it on for a nightly pass
 on a repository where quality matters more than throughput. A released

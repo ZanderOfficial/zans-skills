@@ -56,13 +56,10 @@ root.
 │   ├── research/                (Matt Pocock) primary-source research in a background agent
 │   └── to-tickets/              (Matt Pocock) vertical slices with blocking edges
 ├── zanpass/
-│   └── zanpass/                 /zanpass, the council: asks what you want, triages it, has a worker
-│                                do it while five expert judges force 10+ rounds of revision, runs a
-│                                bug-hunter and a reviewer pass, then lands it. Beside its SKILL.md:
-│                                council.md (rosters, iterations), routine.md (the scheduled pass,
-│                                see ROUTINES.md) and waves.md (building a whole plan in waves)
-├── suprpas/
-│   └── suprpas/                 /suprpas: kept as an alias; runs /zanpass plan or /zanpass build
+│   └── zanpass/                 /zanpass, the council: one command. Asks what you want (plan, bughunt,
+│                                coder, reviewer, designing), triages it, has 5 expert judges force 10
+│                                iterations, runs bug hunter + reviewer passes, merges into your working
+│                                branch. Also the scheduled Routine pass (see ROUTINES.md)
 ├── shared/                      stacked by more than one of the six
 │   ├── thermo-nuclear-review/   (Cursor) bughunt, issuecoder, prreviewer
 │   ├── systematic-debugging/    (superpowers) bughunt, issuecoder, prreviewer
@@ -70,8 +67,7 @@ root.
 │   ├── verification-before-completion/  (superpowers) all but planissues
 │   ├── two-axis-review/         (Matt Pocock) issuecoder, prreviewer, designflow
 │   └── supabase/ supabase-postgres-best-practices/   (Supabase) issuecoder, designflow
-├── agents/                      named subagents: thermo-nuclear-* (prreviewer), impeccable-* (designflow),
-│                                council-judge (zanpass)
+├── agents/                      named subagents: thermo-nuclear-* (prreviewer), impeccable-* (designflow)
 └── licenses/                    every upstream LICENSE / NOTICE, collected in one place
 ```
 
@@ -142,7 +138,7 @@ inherits the session's tools instead.
 The skills were written for Claude Code. Under Qwen, the parts that lean on
 Claude-only features, such as `/goal`, Claude Design canvases and named
 subagent types, work only as far as Qwen has an equivalent. Treat Qwen runs
-of `/suprpas`, `/zanpass` and `/designflow` in particular as best-effort.
+of `/zanpass` and `/designflow` in particular as best-effort.
 
 Re-run the installer after changing anything here.
 
@@ -158,38 +154,24 @@ Re-run the installer after changing anything here.
 | `/planissues [braindump \| plan.md \| issues plan.md]` | (new; the planning step before `/issuecoder`) | Takes a braindump through discussion (with a realism check first), research, organisation and a written plan in the knowledge base, then as many iteration rounds as you want, then issues. It uses `grilling` for question rounds, up to three parallel researchers (code, record, outside world, the last using `research`), and a fresh skeptic that saw none of the discussion. It proposes splitting an idea into several plans when it holds several. Nothing reaches GitHub until you pass a readiness gate (a verifier re-checks every claim in the plan) **and** approve the issue breakdown. It then publishes a milestone, an epic and issues in the house format, writing each issue number back into the plan as it goes. |
 
 **`/zanpass`** is the seventh skill, **the council**, and the one command
-for all of the above. Type `/zanpass` and it asks what you want: **plan** an
-idea, **code** an issue, **design** a screen, hunt **bugs**, or **review** a
-PR; then the target, whether the work is *short* (it runs to the end on its
-own) or *long* (you see it every 10 iterations), and how it should land. A
-cheap read-only subagent triages the repository for that job and you approve
-a triage card that states the worker, the five judges, the branch, the
-guardrails it touches and the cost. A worker subagent then does the job with
-the matching skill above, while a **council of five expert judges** (all on
-opus, a different five per option, always including a seat that enforces the
-house rules from `AGENTS.md`) judges every version, for **at least 10
-iterations**; the council can't release the work before then. A bug-hunter
-pass and a reviewer pass follow, and then the work is merged into the branch
-you're working in, or left as a PR for you, as you chose. It **never merges
-into the default branch without your explicit yes** for that PR at that
-commit. `council.md`, beside its `SKILL.md`, has the rosters and the
-iteration rules.
-
-Two more modes live in the same skill. Started by a scheduled Routine with a
-`REPO CONTEXT` block, it runs the unattended pass in `routine.md` (triage,
-then `/prreviewall`, `/issuecoder`, `/bughunt` and `/planissues` through
-worker subagents, merging only PRs a human approved on GitHub, and keeping its
-own thread under 50% of its context): see [`ROUTINES.md`](ROUTINES.md). And
-`/zanpass build <plan>` builds a published plan in dependency-ordered waves,
-each issue through its own council, with a merge question per wave
-(`waves.md`). `install.sh --only zanpass` also installs the six skills it
-routes to.
-
-**`/suprpas`** is the eighth, kept so the old command still works. The
-Super-Pass it used to be (plan with you, then build in waves) is now
-`/zanpass plan` followed by `/zanpass build`, and `/suprpas` simply runs
-those. `install.sh --only suprpas` installs `/zanpass` and everything it
-routes to.
+that drives all the others. Type `/zanpass` and it asks which option you want:
+**Plan**, **Bughunt**, **Coder**, **Reviewer** or **Designing**. Then it asks
+for the target, whether the work is short or long, and how it should land. It
+triages the request and shows you a card to approve. A worker subagent then
+does the job with the matching skill above, while a **council of 5 expert
+agents** (on opus, a different five per option, always including one that
+enforces the `AGENTS.md` house rules) judges the work for **10 forced
+iterations**. Long work comes back to you after every wave of 10 iterations,
+and you approve it or send it back. After that, the bug hunter pass and the
+reviewer pass run, and the work is merged into the branch you're working in
+and/or you're pinged for next steps. It **never merges into main without
+your explicit permission**. A Plan can go on to build the whole plan in waves
+of issues, each with its own council. Started by a scheduled Routine with a
+`REPO CONTEXT` block, it runs the unattended pass instead
+([`ROUTINES.md`](ROUTINES.md)). Everything is in one file,
+`zanpass/zanpass/SKILL.md`. It replaces `/suprpas` and the earlier
+`/fledgepass`. `install.sh --only zanpass` also installs the skills it routes
+to.
 
 All six have `disable-model-invocation: true`, so they run only when you type
 the command. Claude never starts one on its own.

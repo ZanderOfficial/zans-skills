@@ -2,7 +2,7 @@
 
 This repository is a **library of Claude Code skills and agents**: the
 workflow skills (`/bughunt`, `/issuecoder`, `/prreviewer`, `/prreviewall`,
-`/designflow`, `/planissues`, `/zanpass`, `/suprpas`), the vetted community and
+`/designflow`, `/planissues`, `/zanpass`), the vetted community and
 design skills they stack, and the named subagents. See `README.md` for the
 layout and `CODINGSKILLS.md` for how the skills work together.
 
